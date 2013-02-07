@@ -1,0 +1,67 @@
+提取出无关的子问题(Extracting Unrelated Subproblems)
+====================================================
+
+1. 纯实用性代码(Pure Utility Code)
+   将一些公共的代码, 提取出来成为公共库函数。
+2. 其他一般用途的代码(Other General-Purpose Code)
+   * 意外收获(Unexpected Benefits)
+     将一部分公共的代码提取出来成为库函数, 一方面可以使用便利; 
+     另一方面很容易改进那部分代码
+3. 创建一堆公共代码(Create a Lot of General-Purpose Code)
+   * 公共代码是很好的, 因为它完全和你项目的其他部分没关系
+4. 项目特有的功能(Project-Specfic Functionality)
+   * 特定项目的功能操作也需要提取成单独函数, 但不需要放到公共函数库中
+5. 简化已存在的接口(Simplifying an Existing Interface)
+   * 你应该永远不满足于一个不够完美的接口
+6. 将接口修改成你所需要的(Reshaping an Interface to Your Needs)
+7. 让事情走的太远(Taking Things Too Far)
+   其实就是讲了一件事, 让函数尽可能简单, 将大函数拆分多个通用的小函数, 
+   如果这些功能在项目的其他部分没有用到的话, 那如此的划分是没有太多必要的
+
+
+
+
+同一时间一个任务(One Task at a Time)
+====================================
+  KEY IDEA
+  代码应该被组织成一次只处理一个任务
+  
+  处理流程:
+    * 列出你代码所有要做的任务
+    * 把那些任务拆分到不同的函数中或者至少代码中不同的片段
+
+
+
+
+将想法转化成代码(Turning Thoughts into Code)
+============================================
+    有些事情你并非真正理解, 除非你能给你的祖母解释清楚
+                                                      —— 爱因斯坦
+    * 描述代码需要做什么, 使用简洁的语言使你的同事明白
+    * 注意描述中使用的关键字和短语
+    * 编写代码来匹配你的描述
+
+    如果你不能用你的语言清晰的描述问题或你的设计, 那么很可能遗失了
+    或者没有定义什么
+
+
+
+
+写更少的代码(Writing Less Code)
+===============================
+  KEY IDEA
+    最可读的代码是完全没有代码
+1. 不要打扰那些将要实现的功能 —— 你不会需要它
+   (Don't Bother Implementing That Feature —— You Won't Need It)
+2. 问题和打断你的需求(Question and Break Down Your Requirement)
+3. 保持你的代码库小巧(Keeping Your Codebase Small)
+   尽可能保持你的代码库小巧和轻量级
+   * 尽量创建一些公共"实用"代码来去掉重读的代码
+   * 去掉不用的代码或没有用到的功能
+   * 保持将你的项目划分成几个互不相关的子项目
+   * 时刻自觉你代码库的"重量", 保持轻便敏捷
+4. 亲近你周围的库(Be Familiar with the Libraries Around You)
+   建议: 经常花15分钟来阅读你标准库中的函数/模块/类型
+5. 为什么库重用是如此值得的(Why Reusing Libraries Is Such a Win)
+   一个成熟库的每一行代码都需要反复设计, 调试, 重构, 文档化, 优化和测试, 
+   每一行经过这样进化的代码都非常有价值

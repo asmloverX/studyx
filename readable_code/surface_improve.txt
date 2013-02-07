@@ -1,0 +1,181 @@
+Packing Information into Names(在名字中加入信息)
+================================================
+
+
+1. 选择特殊的单词(Choose Specific Words)
+   例子:
+   WORD     ALTERNATIVES
+   send     deliver, dispatch, announce, distribute, route
+   find     search, extract, locate, recover
+   start    launch, create, begin, open
+   make     create, setup, build, generate, compose, add, new
+   取名字, 让它接近和准确比可爱的此更好。
+
+2. 回避常规的名字如tmp、retval(Avoid Generic Names Like tmp and retval)
+   1) 应该选择一个能够描述实体值或者目的的名字
+   2) 名字retval并不携带更多的信息, 应该用一个能够描述变量值的名字替换
+   3) tmp只应该被用在短声明周期和临时的变量上
+   4) 像i, j, iter, 和it这样的名字一般只被用在索引和循环迭代上
+   ADVICE
+      当你打算用常规名字如tmp, it或者retval的时候, 最好有一个合适的理由
+
+3. 喜欢确切的名字在抽象名字之上(Prefer Concrate Names over Abstract Names)
+
+4. 附加额外信息到名字上(Attaching Extra Information to a Name)
+   1) 为值添加上单位, 示例如下:
+      Function Parameter            | Renaming parameter to encode units
+      Start(int delay)                delay -> delay_secs
+      CreateCache(int size)           size -> size_mb
+      ThrottleDownload(float limit)   limit -> max_kbps
+      Rotate(float angle)             angle -> degress_cw
+   2) 为变量编码上其他重要属性
+      情况                            | 变量名      | 更好的名字
+      一个将被加密的明文密码            password      plaintext_password
+      一个在显示前将被忽略的用户评论    comment       unescaped_comment
+      被转换成UTF-8的html代码           html          html_utf8
+      url编码的引入数据                 data          data_urlenc
+
+5. 一个名字应该多长(How Long Should a Name Be?)
+   1) 在短作用域短名字就很好, 当一个标识拥有更宽广的作用域的时候, 名字应该
+      携带足够的信息使它更加准确
+   2) 给变量起一个长名字并不是一个问题(现在的文本编辑器都有自动补全功能)
+   3) 首字母组合和单词缩写, 往往是一个糟糕的选择, 这样会增加新成员学习的
+      时间。
+      当需要用缩写或首字母组合的时候请考虑: 新成员可以理解名字的意思吗?
+   4) 扔掉名字中不必要的单词
+   5) 使用名字格式来表达不同的意思(参见Google C++编码规范)
+      类名 - 骆驼式命名
+      变量 - 小写字母用下划线分割
+      使用KConstantName来替换CONSTANT_NAME, 用于区分宏命名
+      类成员 - 小写字母用下划线分割, 结尾用一个下划线
+   6) 一些命名建议:
+      * 使用有特殊意义的单词
+      * 避免使用常规的名字
+      * 使用准确意义的名字
+      * 附加上重要的细节信息(前缀, 后缀, 单位 ...)
+      * 在大作用域中使用长一些的名字
+      * 使用大写化, 下划线等表达一个有意义的方式来命名
+
+
+
+名字不能被误解(Names That Can't Be Misconstrued)
+================================================
+    经常检查你的名字并问你自己, "当其他人看到这个名字的时候会解释成其他
+的意思吗?"
+
+1. 更喜欢用min和max来(包含)限制(Prefer min and max for (Inclusive) Limits)
+   ADVICE
+      命名一个限制最好最接近的方式是把max_或min_放到被限制的事物前面
+
+2. 更喜欢用first和last设定范围(Prefer first and last for Inclusive Ranges)
+
+3. 使用begin和end来包含/排除范围
+   (Prefer begin and end for Inclusive/Exclusive Ranges)
+   一般情况下, end是不包含在操作范围内的, 如:
+   for (i = begin; i < end; ++i)
+
+4. 命名bool值(Naming Booleans)
+   * 当为一个bool变量或者一个返回bool值的函数命名的时候, 请确信它确实
+     接近true和false的真正意思
+   * 通常添加is, has, should可以让bool值更加清晰
+
+5. 匹配用户的预期(Matching Expectations of Users)
+   * 一些名字总会误导, 因为用户根据名字的意思有个预想意思, 即是你让它
+     表示其他意思, 咋、在这种情况下最好"投降"并修改名字使它不会误导
+   * 用户经常将get()和size()期望成轻量级方法 --- 一般来说是O(1)
+
+6. 例子: 评估多重名字的候选(Example: Evaluating Multiple Name Candidates)
+   当又出现一个变量标识同一个意思, 或仅仅是原有变量的拷贝时, 名字
+   可以有如下几个选项:
+   * template
+   * reuse
+   * copy
+   * inherit
+   如原始变量是experiment_id最好的名字是copy_experiment和
+   inherit_from_experiment_id
+
+
+
+美学(Aesthetics)
+================
+    很明显, 同美感舒适的代码工作是简单容易的。
+
+1. 重排换行使其一致和紧凑
+   (Rearrange Line Breaks to Be Consistent and Compact)
+2. 使用方法清理不规整代码(Use Methods to Clean Up Irregularity)
+   * 这告诉我们把代码写的"漂亮"是比表面的改进更好的——它可以将你的代码
+     组织得更加好
+3. 使用列对齐是有用的(Use Column Alignment When Helpful)
+4. 选择一个有意义的顺序, 并且一贯的使用它
+   (Pick a Meaningful Order, and Use It Consistently)
+   * 使变量的顺序与界面上(html)显示的元素一致
+   * 从最重要到最不重要排序
+   * 按字母排序
+5. 将声明组织到块中(Organize Declarations into Blocks)
+6. 将代码分段(Break Code into "Paragraphs")
+   * 将相似的组织在一起和其他功能分割开
+   * 促进区分不同的代码段
+7. 个人风格与一致性(Personal Style versus Consistently)
+   * 一致性的风格远比"正确"的风格重要
+     个人风格在各自写的代码中没有什么影响, 但是当不同风格的代码混合在
+     一起之后将是灾难。。。
+
+
+
+认知什么该注释(Knowing What to Comment)
+=======================================
+    注释的目的是帮助阅读者清晰的理解作者的意图
+
+1. 什么不应该注释(What NOT to Comment)
+   * 不要注释那些可以直接从代码中快速获取的信息
+2. 不要为了注释而注释(Don't Comment Just for the Sake of Commenting)
+3. 不要注释糟糕的名字 —— 替换它
+   (Don't Comment Bad Names —— Fix the Names Instead)
+   好代码 > 烂代码 + 好注释
+4. 记录你的思想(Recording Your Thoughts)
+   * 包含"作者评论"(Include "Director Commentary")
+     记录了代码作者有价值的见解
+   * 注释你代码中的瑕疵(Comment the Flaws in Your Code)
+     标记   | 标准的意思
+     TOTO:    记录我还没有做到的(记录将要做什么)
+     FIXME:   已知的代码缺陷
+     HACK:    公认暴力的方法解决的一个问题
+     XXX:     危险! 这儿有问题
+   * 注释你的常量(Comment on Your Constants)
+     注释你设置这个常量的时候, 设置这个值的原因以及想法
+5. 将你自己放在读者的角度(Put Yourself in the Reader's Shoes)
+   * 想象一下你的代码在一个外人(不熟悉你项目的人)看来是怎么样的???
+     这将帮助你确认什么需要注释
+   * 很可能发生的问题(Anticipating Likely Questions)
+     一些隐晦的技巧, 请注释(vector<float>().swap(data) => 彻底清除空间)
+   * 可能存在的陷阱(Anticipating Likely Pitfalls)
+     一些可能引起无用的地方需要注释清楚
+   * "大图"注释("Big Picture" Comments)
+     + 某个刚加入你项目组的人, 他就在你旁边, 你需要让他熟悉你的代码库
+     + 应该包含一些高层次的注释是一个恰当的信息类型(模块的信息等...)
+     + 一个精选的注释句子比什么都没有好得多
+   * 摘要注释(Summary Comments)
+6. 最后的思想——克服文思枯竭(Final Thoughts——Getting Over Writer's Block)
+   * 写下你脑中的想法(不管是什么)
+   * 阅读注释, 看是否需要改进
+   * 改进注释
+
+
+
+让注释精确而简洁(Making Comments Precise and Compact)
+=====================================================
+    注释应该有高信息空间比率
+
+1. 保持注释简洁紧凑(Keep Comments Compact)
+2. 避免模糊不清的词汇(Avoid Ambiguous Pronouns)
+3. 磨光草率的句子(Polish Sloppy Sentences)
+4. 精确描述函数的行为(Describe Function Behavior Precisely)
+5. 使一个具体案列的输入输出来阐明
+   (Use Input/Output Examples That Illustrate Corner Cases)
+6. 指明你代码的意图(State the Intent of Your Code)
+7. "命名函数参数"注释("Named Function Parameter" Comment)
+   * 在一些有参数命名的语言中(python), 在调用函数时可以指定参数的意义
+     Connect(timeout=10, use_encryption=False)
+   * 而在其他不具备这样机制的语言中, 如C++可以使用注释来实现
+     Connect(/* timeout_ms = */ 10, /* use_encryption = */ false);
+8. 使用信息密集的词汇(Use Information-Dense Words)

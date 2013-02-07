@@ -1,0 +1,189 @@
+1. 编译器过程:
+      预编译 -> 编译 -> 汇编 -> 链接
+      预编译    输入: *.c     输出: *.i
+      编译      输入: *.i     输出: *.s
+      汇编      输入: *.s     输出: *.o
+      链接      输入:         输出: *.o
+
+2. gcc选项:
+      -I        => 指定链接库的头文件目录
+      -L        => 指定链接库的lib目录
+      -D        => 指打开某个预编译命令(与MSVC类似)
+      -Wall     => 打开所有类型的警告
+      -Werror   => 将所有警告当成错误来处理
+      -g        => 指定在映像中为GDB生成调试信息
+  GCC优化:
+      -O0       => 不优化, 易于采用GDB进行调试, 没引入优化器, 编译速度快
+      -O1(-O)   => 优化, 尽快编译
+                         结果文件尽可能小
+                         运行速度尽可能快
+      -O2       => 第2等级的优化(包含-O1) 具体选项查看GCC文档
+      -Os       => 就是-O2优化出去那些可能增大结果文件的选项
+      -O3       => 最高等级的优化, 包含-O2的所有选项
+      -mcpu     => 指定目标CPU架构的优化
+                   -mcpu=i386/i486/i586/pentium/pentium1/...
+
+ 3. make:
+        依赖于makefile文件, makefile文件中命令前面必须是一个Tab, 
+    make会解析makefile文件, 找到其中所有的目标规则, 尝试生存一个
+    为all的目标, 如果all没得, 就生成所遇到的第一个目标。
+        使用make可以根据makefile中设定的依赖关系进行增量版本生成。
+
+    make变量:
+            定义 => 直接'变量=值'即可, 如 MY_VAR=bin
+            使用 => $(变量)即可, 如  $(MY_VAR)
+            make支持把字符串连接到一个变量已有的值后面, 采用+来表示连接
+    make函数调用方法: ${func arg1, arg2, ...}
+
+    $?    => 列出当前目标所依赖的文件列表中比当前目标文件还新的文件
+    $@    => 当前目标的名字
+    $<    => 第一个依赖文件的名字
+    $*    => 不包含后缀的当前依赖文件的名字
+    $%    => 如果目标是归档成员, 表示目标的归档成员名称
+             如果目标为mytarget.so(image.o), $@为mytarget.so, $%为image.o
+    $^    => 所有不重复的依赖文件名称
+
+  4. ar命令(静态库):
+         构建静态库, 一般是 ar -cru libname.a $*.o, cru是建立存档或者
+     向存档中添加内容的一组标准选项。
+        c构建静态库(如果库已经存在, 该选项被忽略)
+        r替换静态库中已经存在的目标(如果的话)
+        u一个安全选项, 限定仅当要替换库的目标比存档中现有的目标更新时才替换
+
+            -d    => 删除
+            -r    => 替换
+            -t    => 列表
+            -x    => 提取
+            -v    => 显示详细信息
+            -c    => 创建
+            -ru   => 更新目标
+
+  5. 创建动态库(.so文件):
+         gcc -shared -o libname.so name.c
+         当需要生成与地址无关的源文件, 需要使用PIC选项:
+            gcc -fPIC -c name.c
+            gcc -shared -o libname.so name.o
+       
+         so文件的动态加载
+              加载 void* dlopen(char* so_filename, int flag);
+                      flag => RTLD_LAZY: 一边运行一边解析引用
+                              RTLD_NOW:  加载库时立即解析
+              出错 const char* dlerror(void);
+              引用 void* dlsym(void* h, char* func_name);
+              关闭 void dlclose(void* h);
+
+  5. autoconf和automake:
+        支持一个简单的自动工具项目需要添加的文件:
+        autogem.sh          => 运行自动工具以产生构建环境的shell脚本
+        configure.ac        => autoconf工具的输入脚本
+        makefile.am         => 顶层makefile模板
+        subdir/makefile.am  => 工程项目的makefile模板
+        几个必要文件
+            NEWS README AUTHORS ChangeLog
+
+        例子:
+        |-- app
+            |-- makefile.am
+            |-- configure.ac
+            |-- autogen.sh
+            |-- NEWS
+            |-- README
+            |-- AUTHORS
+            |-- ChangeLog
+            |-- app
+                |-- main.c
+                |-- makefile.am
+            |-- lib
+                |-- lib.h
+                |-- lib.c
+                |-- makefile.am
+        
+        app/autogen.sh内容如下:
+          #!/bin/sh
+          aclocal
+          libtoolize --automake
+          automake -a
+          autoconf
+        app/configure.ac内容如下:
+          AC_PREREQ(2.61)
+          AC_INIT(app)
+          AM_INIT_AUTOMAKE(app, 0.1)
+          AC_PROG_CC
+          AC_PROG_CC_C99
+          AM_PROG_CC_O
+          AC_PROG_RANLIB
+          AC_PROG_LIBTOOL
+          AC_OUTPUT(app/makefile lib/makefile makefile)
+        app/makefile.am内容如下:
+          SUBDIRS = lib app
+        app/app/makefile.am的内容如下:
+          bin_PROGRAMS = app
+          app_SOURCES = main.c
+          app_LDADD = ${prefix}/lib/libadd.a
+          app_CPPFLAGS = -I ${prefix}/lib
+        app/lib/makefile.am的内容如下:
+          lib_LIBRARIES = libadd.a
+          libadd_a_SOURCES = lib.c
+        
+        执行autogen.sh脚本
+        执行生成的configure配置脚本, prefix要指定静态库的位置
+        执行make
+
+        make              => 生成项目的二进制目标
+        make clean        => 清除目标
+        make distclean    => 清除目标, 包括configure产生的文件
+        make install      => 安装, 安装位置由prefix指定
+        make dist         => 生存.tar.gz, 包括源码, makefile.in
+                             和configure脚本文件
+
+  6. GDB
+         首先编译的时候应使用-g标识符, 虽然GDB可以调试优化后的代
+     码, 但是优化后的代码很难理解, 所以调试优化之前的代码好很多。
+        list              => 列出代码
+        list beg, end     => 列出beg行到end行之间的代码
+        run               => 启动应用程序
+        info breakpoints  => 查看可用的断点
+        clear line        => 移除line行所设置的断点
+        break function    => 在函数上设置一个断点
+        break file:function 
+                          => 在指定文件的函数上设置断点
+        break line        => 在指定行号上设置断点
+        break file:line   => 在指定文件的行号上设置断点
+        break address     => 在指定物理地址上设置断点
+        break function if x = 2
+        break file:function if x = 2
+        break line if x = 2
+        break file:line if x = 2
+        break address if x = 2
+                          => 条件断点, x=2暂停
+        next(n)           => 执行下一步, 不进入函数
+        step(s)           => 执行下一步, 进入函数(单步调试)
+        cont(c)           => 继续运行
+        display var       => 显示var变量的信息
+        print(p) var      => 也可以显示var变量的信息
+        set var = val     => 调试中设置变量的值信息
+        backtrace(bt)     => 查看堆栈信息
+     多进程调试
+        set follow-fork-mode child    => 调试子进程
+        set follow-fork-mode parent   => 调试父进程
+        set follow-fork-mode ask      => 出现fork时, 询问调试那个进程
+     多线程调试
+        break file:line thread thread_num   
+                          => 在file文件line行设置一个断点, 但
+                             只对thread_num号线程生效
+        break file:line thread thread_num if x > 5
+                          => 在file的line行设置一个断点, 只对
+                             thread_num号线程生效, 满足x > 5
+                             的条件停止线程
+        info threads      => 列出所有线程以及他们的状态
+                             * 标识的线程表示当前关注的线程
+        thread thread_num => 切换到关注thread_num号线程
+        set scheduler-locking on
+                          => 锁定调度器, GDB不自行根据优先级来切换当前线程
+        set scheduler-locking off       => 取消锁定
+        show scheduler-lock             => 显示锁定模式
+        thread apply all bt             => 向所有线程应用一个命令
+        thread apply 1 2 3 bt           => 对1,2,3号线程应用bt命令
+     调试已经运行的程序
+        attach pid        => 挂接到pid指定的运行进程
+        detach            => 脱离挂接

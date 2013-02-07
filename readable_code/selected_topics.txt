@@ -1,0 +1,25 @@
+测试和可读性(Testing and Readability)
+=====================================
+
+1. 让测试易于阅读和维护(Make Tests Easy to Read and Maintain)
+   KEY IDEA
+      测试代码应该易于阅读以便其他人可以舒服的修改或添加测试
+   * 测试准则: 你应该尽可能向你的用户展示重要的细节, 以便使那些更重要的
+               细节更加突出
+   * 创建最低的测试陈述(Createing the Minimal Test Statement)
+         除了使代码非常简洁易读之外, 保持你的测试陈述简短使得很容易添加
+     更多的测试用例
+   * 实现习惯"微语言"(Implementing Custom "Minilanguages")
+2. 让错误提示易读(Making Error Messages Readable)
+   * 使用更好版本的assert(Using Better Versions of assert)
+     在C++中可以使用BOOST中的BOOST_REQUIRE_EQUAL, 会提供更好的出错提示
+   * 手工制作出错信息(Hand-Crafted Error Messages)
+3. 选择好的测试输入(Choosing Good Test Inputs)
+   * 通常, 你应该挑选那些能够完全测试代码的最简单输入集合
+   * 简化输入的值(Simplifying the Input Values)
+     优先选择通用可以完成测试工作的简单干净的测试值
+   * 多样的功能测试(Multiple Tests of Functionality)
+     每一个测试的功能尽量单一, 这样意外出错的时候可以很方便定位问题
+4. 命名测试函数(Naming Test Functions)
+5. 测试友好的开发(Test-Friendly Development)
+

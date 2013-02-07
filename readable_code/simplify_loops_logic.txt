@@ -1,0 +1,98 @@
+确保控制流程简单易读(Making Control Flow Easy to Read)
+======================================================
+    尽可能让你的条件, 循环和其他一些改变控制流程的语句保持自然——使用一种
+不会让你的阅读者停止或者重读你的代码的方式写代码
+
+1. 条件中的参数序列(The Order of Arguments in Conditionals)
+    Left-hand side              |||           Right-hand side
+    应该"被询问"的表达式,             表达式应该是被比较参照物, 值应该
+    是值会流动变化的变量              是更恒定不变的
+2. if/else块的序列(The Order of if/else Blocks)
+   * 将积极关注的(多数情况下发生的)放在第一部分, 替换那些不常关注的
+   * 将简单的部分放在前面, 这种方法可以同时将if和else放在屏幕上
+   * 将更感兴趣的或更显著的放在前面
+3. ?:表达式(a.k.a "三目运算符")
+   The ?: Conditional Expression (a.k.a "Ternary Operator")
+   * 缩短代码行数量不如以缩短别人明白代码所花的时间的准则
+   * 默认使用if/else, 三目运算符?:应该只被用在最简单的情况下
+4. 避免do/while循环(Avoid do/while Loops)
+5. 尽早从函数返回(Returning Early from a Function)
+   当在函数返回的时候需要清理一堆资源的时候, 在现代的语言中可以用如下方式:
+   Language           |||       Structured idiom for cleanup code 
+   C++                      destructors
+   Java,Python              try finally
+   Python                   with
+   C#                       using
+   在纯C中, 没有这些现代的处理机制, 我们可以使用goto
+6. 声名狼藉的goto(The Infamous goto)
+   在大多数时候, 都应该避免使用goto, 但是在清理一堆资源的时候很有效
+7. 尽量减少嵌套的层数(Minimize Nesting)
+   * 从一个长远的视图来检查你修改的代码, 返回并从整体上思考
+   * 使用尽早返回来取消嵌套(Removing Nesting by Returning Early)
+   * 消除循环中的嵌套(Removing Nesting Inside Loops)
+8. 你能跟上执行的流程吗?(Can You Follow the Flow of Execution?)
+   一些例子, 当执行的时候, 你很难跟上其背后的流程
+   * 线程 - 当运行的时候那些代码被执行是不清楚的
+   * 信号/中断处理器 - 某一代码可以在任意时刻被执行
+   * 异常 - 可能在多重函数调用中被执行
+   * 函数指针&匿名函数 - 很难知道那些代码将执行因为在编译时是不知道的
+   * 虚函数 - obj.virtualMethod()可能调用的是一个未知子类的代码
+
+
+
+
+分解巨大的表达式(Breaking Down Giant Expressions)
+=================================================
+    将你的巨大表达式分解成易理解的小短句
+
+1. 变量解释(Explaining Variables)
+   * 将一个表达式的结果用一个变量来表示, 再用来同其他变量比较
+2. 变量摘要(Summary Variables)
+   * 将判断结果用一个变量来表示
+3. 使用摩根定律(Using De Morgan's Laws)
+   在使用逻辑判断的时候可以使用摩根定律
+   1) not (a or b or c) => (not a) and (not b) and (not c)
+   2) not (a and b and c) => (not a) or (not b) or (not c)
+4. 滥用短路逻辑(Abusing Short-Circuit Logic)
+   * 当心"聪明"的代码块——它们经常使其他人在阅读的时候产生迷惑
+   * 寻找一个高雅的解决方法(Finding a More Elegant Approach)
+5. 分解巨大的表述(Breaking Down Giant Statements)
+   * 可以帮助避免键入错误
+   * 它将一行的代码数缩短, 使得代码易于扫描
+   * 如果类型需要修改, 只有一个地方需要修改
+6. 其他创造性的方法来简化表达式
+   (Another Creative Way to Simplify Expressions)
+   在C/C++中相同的表达式可以使用宏来简化
+
+
+
+
+变量和可读性(Variables and Readability)
+=======================================
+
+1. 消除变量(Eliminating Variables)
+   * 无用的临时变量(Useless Temporary Variables)
+   * 消除中间结果(Eliminating Intermediate Results)
+   * 消除控制流程的变量(Eliminating Control Flow Variables)
+2. 收缩你代码的作用域(Shrink the Scope of Your Variables)
+   KEY IDEA => 尽量是你的变量的可见性控制在几行代码里面
+   * 一个限制访问类成员的方法是尽可能的使用静态方法
+   * 另一个方式是将大类拆分成小类(要是互相独立的类, 如果互相访问, 
+     则拆分不完全)
+   * 将大文件拆分成小文件, 大函数拆分成小函数
+   * C++中if表达式的作用域(if Statements Scope in C++)
+     对于只在if表达式作用域内的变量, 不要在外面定义, 以免误代码阅读
+   * 在JavaScript中创建私有变量(Creating "Private" Variables in JavaScript)
+   * JavaScript全局作用域(JavaScript Global Scope)
+     对JavaScript最好的简易是定义变量的时候总是使用var关键字, 否则会是
+     全局作用域的
+   * 在Python和JavaScript中无嵌套的作用域
+     (No Nested Scope in Python and JavaScript)
+     在Python中变量在一个block后依然有效, 为了避免读者误会, 应该避免
+   * 向下移动定义(Moving Definitions Down)
+     对于一些现代的语言, 在变量需要用到的时候在定义 。。。
+3. 提倡一次性变量(Prefer Write-Once Variables)
+   让变量在程序中是唯一的, 只让变量在一个地方被修改使用等
+   KEY IDEA 
+      越多的地方一个变量被操作, 越难理解它现在的值。
+   那些值修改了一次的变量使得代码更易被理解

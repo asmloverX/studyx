@@ -1,0 +1,64 @@
+UNIX 操作小技巧
+==============
+
+
+1. Ubuntu恢复默认面板
+   * 按下 Alt+F2，输入以下内容并按回车
+　　 gconftool --recursive-unset /apps/panel
+   * 再次按下 Alt+F2，输入以下内容并按回车
+　　 rm -rf ~/.gconf/apps/panel
+   * 最后再次按下 Alt+F2，接着再输入以下内容并按回车
+　　 pkill gnome-panel
+
+2. lampp下的mysql设置
+   sudo ln -s /opt/lampp/var/mysql/mysql.sock /var/run/mysqld/mysqld.sock
+
+3. win grub安装ubuntu 
+   * 准备grub4dos
+     1) 将grub中的grldr, grldr.mbr, grub.exe, menu.lst; ubuntu ISO中 
+        /casper/下的vmlinuz, initrd.lz; ubuntu iso文件拷贝到C盘根目录
+     2) 修改menu.lst 
+        title Install Ubuntu
+        root (hd0,0)
+        kernel (hd0,0)/vmlinuz boot=casper iso-scan/filename=ubuntu.iso ro quiet splash locale=zh_CN.UTF-8
+        initrd (hd0,0)/initrd.lz 
+        [注意] filename后的ubuntu.iso是ubuntu的镜像名
+     3) 在C盘根目录下添加boot.ini(win7系统, XP自带boot.ini直接修改即可)
+        [boot loader]
+        timeout=30   
+        default=multi(0)disk(0)rdisk(0)partition(1)\WINDOWS   
+        [operating systems]   
+        multi(0)disk(0)rdisk(0)partition(1)\WINDOWS="Microsoft Windows 7 Professional" /noexecute=optin /fastdetect   
+        C:\grldr.mbr="grub"
+   * 重启安装Ubuntu
+     1) 进入ubuntu安装环境
+        在Terminal窗口 $ sudo umount -l /isodevice/
+     2) 安装Ubuntu
+        + 新建一个交换分区(一般1G大小即可 1500M —— 应该不大于内存大小)
+        + 新建一个ext4日志文件系统, 挂载点为 / 
+        + 安装
+     3) 安装完成后(在重启之前)
+        + 在ubuntu中进入windows C盘将根目录下安装ubuntu相关文件删除
+        + 恢复grub选项 
+          (如果/boot是单独分区, mount时要设置对应的sda)
+          $ sudo -i
+          # fdisk -l
+          # mount /dev/sda8 /mnt
+          # mount /dev/sda8 /mnt/boot 
+          # grub-install --boot-directory=/mnt/boot /dev/sda 
+        + 重启 
+     4) 恢复windows启动选项
+        sudo add-apt-repository ppa:danielrichter2007/grub-customizer
+        sudo apt-get update
+        sudo apt-get install grub-customizer
+        修复windows启动选项 
+
+4. 双系统windows时间与Ubuntu不同步
+   进入Ubuntu
+   $ sudo vim /etc/default/rcS
+   将UTC设置为no   UTC=no 
+   重启 OK
+
+5. Ubuntu设置网络连接
+   DSL选项页中 服务设置为: PPPoE
+        

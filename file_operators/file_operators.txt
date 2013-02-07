@@ -1,0 +1,118 @@
+标准I/O库
+===========
+  1. 打开文件
+     FILE* fopen(const char* filename, const char* mode);
+     mode选项
+        r/rb        => 只读方式打开已经存在的文件
+        w/wb        => 写方式打开文件, 且把文件长度截断为0(无文件则穿建)
+        a/ab        => 写方式打开, 新内容追加在文件尾(无文件则穿建)
+        r+/rb+/r+b  => 以修改方式打开已存在的文件(读和写)
+        w+/wb+/w+b  => 以修改方式打开, 文件长度截断为0(无文件则穿建)
+        a+/ab+/a+b  => 以修改方式打开, 心内容追加在文件尾(无文件则穿建)
+        [注意]:
+             *nix下b并不是必须的, 将所有文件都当成二进制文件, 在windows
+         下是区别对待文本文件和二进制文件, 当需要编写跨平台的程序的时候
+         最好加上b选项
+    
+     FILE* fdopen(int filedes, const char* type);
+     取一个现存的文件描述符(从open, dup, dup2, fcntl, pipe得到的此文件
+     描述符), 并使一个标准I/O流与该描述符相结合
+
+  2. 数据读写
+     int fputc(int c, FILE* stream);
+     int fgetc(FILE* stream);
+     int fputs(const char* s, FILE* stream);
+     char* fgets(char* s, int size, FILE* stream);
+     int fprintf(FILE* stream, const char* format, ...);
+     int sprintf(char* str, const char* format, ...);
+     int fscanf(FILE* stream, const char* format, ...);
+     int sscanf(const char* str, const char* format, ...);
+     size_t fread(void* ptr, size_t size, size_t nmemb, FILE* stream);
+     size_t fwrite(const char* void* ptr, size_t size, size_t nmemb, 
+                   FILE* stream);
+     void rewind(FILE* stream);
+     int fseek(FILE* stream, long offset, int whence);
+     long ftell(FILE* stream);
+     int fgetpos(FILE* stream, fpos_t* pos);
+     int fsetpos(FILE* stream, fpos_t* pos);
+     int setvbuf(FILE* stream, char* buf, int mode, size_t size);
+         标准I/O提供了缓冲区, 系统分块(默认是8K)进行读写, 字符I/O都是
+     写到FILE缓冲区, 缓存区满再自动写入介质, 或则缓冲区为空在从介质中
+     读取数据。系统调用是没得缓冲区的。
+         全缓冲区   => 一般对应磁盘文件, 标准I/O尽量多读写数据到缓冲区
+                       当缓冲区满或手动flush时导致缓冲区立即flush, 或
+                       进程返回, 调用exit退出, 文件流关闭才把数据一次
+                       性写入到I/O设备中
+         行缓冲区   => 一般对应的是stdout和stdin, 只有遇到\n字符, 行
+                       缓冲区(默认1024字节)被填满, 调用fflush, 进程返
+                       回, 调用exit, 文件流关闭才将行缓冲区的数据一次
+                       写入到I/O设备中去
+         无缓冲区   => 一般对应stderr, 每次读写操作都会写入I/O设备
+     对于缓存区, 一般规定:
+         1) => 标准错误输出是无缓冲
+         2) => 如果涉及终端设备是行缓冲, 否则是全缓冲
+         [注]详细请见《C标准库》
+
+
+系统API(系统调用)
+=================
+      0 => 标准输入
+      1 => 标准输出
+      2 => 标准错误
+  1. 打开(创建)文件
+     int open(const char* filename, int flags);
+     int open(const char* filename, int flags, mode_t mode);
+         open打开的文件描述符是唯一的, 如果两个进程同时打开一个文件, 会
+     得到两个不同的文件描述符, 如果两个进程都对文件进行操作, 也是各写各
+     的, 他们的数据不会交织在一起, 而是相互覆盖, 后写的内容覆盖先写的内
+     容。因此多个进程写一个文件的时候应该使用文件锁。
+         flags的值选项:
+            O_RDONLY    => 以只读方式打开
+            O_WRONLY    => 以只写方式打开
+            O_RDWR      => 以读写方式打开
+         flags的附加标志(以&或则|与上面的标志附加在一起):
+            O_CREAT     => 文件不存在, 则创建
+            O_EXCL      => 与O_CREAT一起使用,如文件存在返回错误;or创建文件
+            O_NOCTTY    => 如果文件描述符指向终端, 不把这个终端做控制终端
+            O_TRUNC     => 如以写方式打开, 将文件清空, 长度设为0
+            O_APPEND    => 每次写操作前, 文件指针定位到文件尾
+            O_NONBLOCK  => 非阻塞模式打开,对文件操作不会阻塞
+            O_SYNC      => write会被阻塞, 直到数据写入物理设备为止
+            O_NOFOLLOW  => 如果filename为符号链接, 打开文件失败
+            O_DIRECTORY => 如果不是目录, 打开失败
+            O_DIRECT    => 直接从用户空间缓冲区读取数据, 从而尽量减少缓存
+                           的影响(与O_SYNC一起使用即是同步操作)
+            O_ASYNC     => 在该文件描述符所指的输入/输出数据可用时给出信号
+            O_LARGEFILE => 在32位系统上打开大小不能以32为数据表示的文件
+                           时, 要求大文件系统
+         mode的值选项:
+            这个值仅在flags值使用O_CREAT时可用(具体的宏参见文档)
+            S_IRWXU     => 用户拥有读/写/执行权限(00700)
+            S_IRUSR     => 用户拥有读权限(00400)
+            S_IWUSR     => 用户拥有写权限(00200)
+            S_IXUSR     => 用户拥有执行权限(00100)
+            S_IRWXG     => 用户组拥有读/写/执行权限(00070)
+            S_IRGRP     => 用户组拥有读权限(00040)
+            S_IWGRP     => 用户组拥有写权限(00020)
+            S_IXGRP     => 用户组拥有执行权限(00010)
+            S_IRWXO     => 其他用户拥有读/写/执行权限(00007)
+            S_IROTH     => 其他用户拥有读权限(00004)
+            S_IWOTH     => 其他用户拥有写权限(00002)
+            S_IXOTH     => 其他用户拥有执行权限(00001)
+  2. 读写操作
+     sszie_t read(int fd, void* buf, size_t count);
+     ssize_t write(int fd, const void* buf, size_t count);
+         返回值是-1表示出错, 返回0表示读到了文件尾或则未写入数据, 否则
+     表示读入的数据长度或写到文件的数据长度.
+
+     sszie_t pread(int fd, void* buf, size_t count, off_t offset);
+     ssize_t pwrite(int fd, const void* buf, size_t count, off_t offset);
+         可以设置偏移量来读写文件.
+  3. 关闭文件
+     int close(int fd);
+         返回0表示成功, -1表示失败。
+  4. 获取文件信息
+     int stat(const char* path, struct stat* buf);
+     int fstat(int fd, struct stat* buf);
+     int lstat(const char* path, struct stat* buf);
+         其中包含了文件的长度等信息, 具体stat结构请man一下
